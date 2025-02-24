@@ -9,11 +9,11 @@ bun add @somnolence/bun
 To use:
 
 ```typescript
-import { createNapServer } from '@nap/bun'
+import { createSomnolenceServer } from '@somnolence/bun'
 
-const napServer = createNapServer({routes: {
+const somnolence = createSomnolenceServer({routes: {
   '/': () => 'Hello, world!'
 }})
 
-napServer.start()
+somnolence.start()
 ```

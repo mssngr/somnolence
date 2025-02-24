@@ -20,7 +20,7 @@ function findRoute({
 	return notate(routes, formattedPath);
 }
 
-export function createNapServer<T extends Routes>({
+export function createSomnolenceServer<T extends Routes>({
 	port = 3000,
 	routes,
 }: { port: number; routes: T }) {
@@ -33,7 +33,7 @@ export function createNapServer<T extends Routes>({
 	);
 	return {
 		start() {
-			console.info(`💤 Nap is beginning at http://localhost:${port}`);
+			console.info(`💤 Somnolence is running at http://localhost:${port}`);
 			Bun.serve({
 				port,
 				async fetch(req) {

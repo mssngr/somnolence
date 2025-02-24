@@ -2,7 +2,7 @@
 	"name": "@somnolence/bun",
 	"module": "main.ts",
 	"type": "module",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"license": "MIT",
 	"scripts": {
 		"publish-pkg": "bun publish --access public",
