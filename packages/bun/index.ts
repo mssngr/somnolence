@@ -1,10 +1,24 @@
+// import type { TSchema, Static } from '@sinclair/typebox'
 import { notate } from 'notate'
 import queryString from 'query-string'
-import tsj from 'ts-json-schema-generator'
 
 export type Handler<Input, Output> = (input: Input) => Output
 export type Route = Handler<unknown, unknown> | { [subroute: string]: Route }
 export type Routes = Record<string, Route>
+// export type DefinedRoute = { _input?: TSchema; _output?: TSchema } & {
+//   [subroute: string]: DefinedRoute
+// }
+// export type DefinedRoutes = Record<string, DefinedRoute>
+
+// function mapRouteSchema(route: DefinedRoute, parentPath?: string): Route {
+//   type DefinedHandler = (
+//     input: Static<typeof route._input>,
+//   ) => Static<typeof route.output>
+//   return Object.keys(route).reduce((accum, key) => {
+//     if (key !== '_input' && key !== '_output') {
+//     }
+//   })
+// }
 
 function dotNotatePath(path: string): string {
   // Take off leading and trailing slashes and replace remaining slashes with dots
@@ -20,21 +34,19 @@ function findRoute({
   return notate(routes, dotNotationPath)
 }
 
-export function createSomnolenceServer<UserDefinedRoutes extends Routes>({
+export function createSomnolenceServer({
   port = 3000,
   routes,
-  routesType,
 }: {
   port?: number
-  routes: UserDefinedRoutes
-  routesType?: { configPath: string; name?: string; path: string }
+  routes: Routes
 }) {
-  const formattedRoutes = Object.entries(routes).reduce<UserDefinedRoutes>(
+  const formattedRoutes = Object.entries(routes).reduce<Routes>(
     (accum, [path, route]) => {
       const newAccum = Object.assign(accum, { [dotNotatePath(path)]: route })
       return newAccum
     },
-    {} as UserDefinedRoutes,
+    {} as Routes,
   )
   return {
     start() {
@@ -45,14 +57,14 @@ export function createSomnolenceServer<UserDefinedRoutes extends Routes>({
           try {
             const url = new URL(req.url)
             if (url.pathname === '/__types') {
-              const jsonSchema = tsj
-                .createGenerator({
-                  path: routesType?.path ?? './',
-                  tsconfig: routesType?.configPath ?? './tsconfig.json',
-                  type: '*',
-                })
-                .createSchema(routesType?.name ?? 'Routes')
-              return Response.json(jsonSchema)
+              // const jsonSchema = tsj
+              //   .createGenerator({
+              //     path: routesType.path,
+              //     tsconfig: routesType.configPath,
+              //     type: '*',
+              //   })
+              //   .createSchema(routesType.name ?? 'Routes')
+              // return Response.json(jsonSchema)
             }
             const route = findRoute({
               routes: formattedRoutes,
@@ -87,3 +99,5 @@ export function createSomnolenceServer<UserDefinedRoutes extends Routes>({
     },
   }
 }
+
+export { default as t } from './t'

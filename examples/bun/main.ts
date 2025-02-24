@@ -1,17 +1,6 @@
 import { createSomnolenceServer } from '@somnolence/bun'
 
-export type Routes = {
-  hello: () => string
-  parent: {
-    '/': () => string
-    child: {
-      '/': () => string
-      grandchild: () => string
-    }
-  }
-}
-
-const somnolence = createSomnolenceServer<Routes>({
+const somnolence = createSomnolenceServer({
   routes: {
     hello: () => 'Hello, world!',
     parent: {
@@ -23,6 +12,7 @@ const somnolence = createSomnolenceServer<Routes>({
     },
   },
   routesType: {
+    configPath: './tsconfig.json',
     path: './main',
   },
 })
