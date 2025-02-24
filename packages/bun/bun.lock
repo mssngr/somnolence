@@ -5,7 +5,6 @@
       "name": "@yep/bun",
       "dependencies": {
         "@sinclair/typebox": "^0.34.28",
-        "notate": "^2.1.1",
         "query-string": "^9.1.1",
       },
       "devDependencies": {
@@ -28,8 +27,6 @@
     "decode-uri-component": ["decode-uri-component@0.4.1", "", {}, "sha512-+8VxcR21HhTy8nOt6jf20w0c9CADrw1O8d+VZ/YzzCt4bJ3uBjw+D1q2osAB8RnpwwaeYBxy0HyKQxD5JBMuuQ=="],
 
     "filter-obj": ["filter-obj@5.1.0", "", {}, "sha512-qWeTREPoT7I0bifpPUXtxkZJ1XJzxWtfoWWkdVGqa+eCr3SHW/Ocp89o8vLvbUuQnadybJpjOKu4V+RwO6sGng=="],
-
-    "notate": ["notate@2.1.1", "", {}, "sha512-x/8rb3Lx5SlRD97ZF6bHjZ+U43X2UEqFXhBhCYDMi/ojV340Grcvc54ZTq/7SziB6tjkzaK2+4ihpqPhixuL3Q=="],
 
     "query-string": ["query-string@9.1.1", "", { "dependencies": { "decode-uri-component": "^0.4.1", "filter-obj": "^5.1.0", "split-on-first": "^3.0.0" } }, "sha512-MWkCOVIcJP9QSKU52Ngow6bsAWAPlPK2MludXvcrS2bGZSl+T1qX9MZvRIkqUIkGLJquMJHWfsT6eRqUpp4aWg=="],
 

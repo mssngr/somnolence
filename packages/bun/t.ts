@@ -1,6 +1,7 @@
-import { Type } from '@sinclair/typebox'
+import { Type, type JsonTypeBuilder } from '@sinclair/typebox'
 
-export default {
+// Limit to just types supported by JSON Schema
+const JsonTypes: JsonTypeBuilder = {
   Any: Type.Any,
   Array: Type.Array,
   Boolean: Type.Boolean,
@@ -17,6 +18,7 @@ export default {
   KeyOf: Type.KeyOf,
   Literal: Type.Literal,
   Lowercase: Type.Lowercase,
+  Module: Type.Module,
   Mapped: Type.Mapped,
   Never: Type.Never,
   Not: Type.Not,
@@ -27,15 +29,22 @@ export default {
   Optional: Type.Optional,
   Partial: Type.Partial,
   Pick: Type.Pick,
+  Readonly: Type.Readonly,
+  ReadonlyOptional: Type.ReadonlyOptional,
   Record: Type.Record,
+  Recursive: Type.Recursive,
   Required: Type.Required,
   Rest: Type.Rest,
   Ref: Type.Ref,
   String: Type.String,
   TemplateLiteral: Type.TemplateLiteral,
+  Transform: Type.Transform,
   Tuple: Type.Tuple,
   Uncapitalize: Type.Uncapitalize,
   Union: Type.Union,
   Unknown: Type.Unknown,
+  Unsafe: Type.Unsafe,
   Uppercase: Type.Uppercase,
 }
+
+export default JsonTypes

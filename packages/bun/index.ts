@@ -1,37 +1,47 @@
-// import type { TSchema, Static } from '@sinclair/typebox'
-import { notate } from 'notate'
+import type { TSchema, Static } from '@sinclair/typebox'
+import { type AssertError, Value } from '@sinclair/typebox/value'
 import queryString from 'query-string'
 
-export type Handler<Input, Output> = (input: Input) => Output
-export type Route = Handler<unknown, unknown> | { [subroute: string]: Route }
-export type Routes = Record<string, Route>
-// export type DefinedRoute = { _input?: TSchema; _output?: TSchema } & {
-//   [subroute: string]: DefinedRoute
-// }
-// export type DefinedRoutes = Record<string, DefinedRoute>
-
-// function mapRouteSchema(route: DefinedRoute, parentPath?: string): Route {
-//   type DefinedHandler = (
-//     input: Static<typeof route._input>,
-//   ) => Static<typeof route.output>
-//   return Object.keys(route).reduce((accum, key) => {
-//     if (key !== '_input' && key !== '_output') {
-//     }
-//   })
-// }
+export type Route = {
+  input: TSchema
+  output: TSchema
+  handler: (input: Static<TSchema>) => Static<TSchema>
+  authorize?: (req: Request, input: Static<TSchema>) => boolean
+}
+export type Routes = {
+  [route: string]: Route | Routes
+}
+export type Schema = Record<string, { input: TSchema; output: TSchema }>
 
 function dotNotatePath(path: string): string {
   // Take off leading and trailing slashes and replace remaining slashes with dots
   return path.replace(/^\//, '').replace(/\/$/, '').replace(/\//g, '.')
 }
 
-function findRoute({
-  routes,
-  path,
-}: { routes: Routes; path: string }): Route | undefined {
-  const dotNotationPath = dotNotatePath(path)
-  // Find the route by its dot notation path
-  return notate(routes, dotNotationPath)
+function flattenRoutes(
+  routes: Routes,
+  parentPath?: string,
+): Record<string, Route> {
+  const dotNotationParentPath = parentPath ? dotNotatePath(parentPath) : ''
+  return Object.entries(routes).reduce<Record<string, Route>>(
+    (accum, [path, route]) => {
+      const dotNotationPath = dotNotatePath(path)
+      if (route.input && route.output && route.handler) {
+        return Object.assign(accum, {
+          [`${dotNotationParentPath}${dotNotationParentPath && dotNotationPath && '.'}${dotNotationPath}`]:
+            route,
+        })
+      }
+      return Object.assign(
+        accum,
+        flattenRoutes(
+          route as Routes,
+          `${dotNotationParentPath}${dotNotatePath(path)}`,
+        ),
+      )
+    },
+    {} as Record<string, Route>,
+  )
 }
 
 export function createSomnolenceServer({
@@ -41,12 +51,13 @@ export function createSomnolenceServer({
   port?: number
   routes: Routes
 }) {
-  const formattedRoutes = Object.entries(routes).reduce<Routes>(
-    (accum, [path, route]) => {
-      const newAccum = Object.assign(accum, { [dotNotatePath(path)]: route })
-      return newAccum
-    },
-    {} as Routes,
+  const flattenedRoutes = flattenRoutes(routes)
+  const schema = Object.entries(flattenedRoutes).reduce<Schema>(
+    (accum, [path, { input, output }]) =>
+      Object.assign(accum, {
+        [path]: { input, output },
+      }),
+    {} as Schema,
   )
   return {
     start() {
@@ -56,25 +67,13 @@ export function createSomnolenceServer({
         async fetch(req) {
           try {
             const url = new URL(req.url)
-            if (url.pathname === '/__types') {
-              // const jsonSchema = tsj
-              //   .createGenerator({
-              //     path: routesType.path,
-              //     tsconfig: routesType.configPath,
-              //     type: '*',
-              //   })
-              //   .createSchema(routesType.name ?? 'Routes')
-              // return Response.json(jsonSchema)
+            if (url.pathname === '/__schema') {
+              console.log(schema)
+              return Response.json(schema)
             }
-            const route = findRoute({
-              routes: formattedRoutes,
-              path: url.pathname,
-            })
-            const handler =
-              typeof route === 'function'
-                ? route
-                : (route?.['/'] as Handler<unknown, unknown> | undefined)
-            if (handler) {
+            const route: Route | undefined =
+              flattenedRoutes[dotNotatePath(url.pathname)]
+            if (route?.handler) {
               const queryParams = queryString.parse(
                 url.searchParams.toString(),
                 {
@@ -85,7 +84,14 @@ export function createSomnolenceServer({
               )
               const body = req.body && (await req.json())
               const input = { ...queryParams, ...(body || {}) }
-              const output = handler(input)
+              try {
+                Value.Assert(route.input, input)
+              } catch (err) {
+                const error = err as AssertError
+                console.error(error.message)
+                return new Response(error.message, { status: 400 })
+              }
+              const output = route.handler(input)
               return Response.json({ output })
             }
             return new Response('Not Found', { status: 404 })
@@ -98,6 +104,18 @@ export function createSomnolenceServer({
       })
     },
   }
+}
+
+export function createRoute<Input extends TSchema, Output extends TSchema>({
+  input,
+  output,
+  handler,
+}: {
+  input: Input
+  output: Output
+  handler: (input: Static<Input>) => Static<Output>
+}): Route {
+  return { input, output, handler }
 }
 
 export { default as t } from './t'

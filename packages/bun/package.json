@@ -2,7 +2,7 @@
   "name": "@somnolence/bun",
   "module": "index.ts",
   "type": "module",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "license": "MIT",
   "homepage": "https://github.com/mssngr/somnolence#readme",
   "repository": {
@@ -13,7 +13,9 @@
     "url": "https://github.com/mssngr/somnolence/issues"
   },
   "scripts": {
-    "publish-pkg": "bun publish --access public",
+    "start": "bun example.ts",
+    "dev": "bun --watch example.ts",
+    "publish-pkg": "bun publish -p --access public",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -22,7 +24,6 @@
   },
   "dependencies": {
     "@sinclair/typebox": "^0.34.28",
-    "notate": "^2.1.1",
     "query-string": "^9.1.1"
   }
 }
