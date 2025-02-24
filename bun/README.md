@@ -1,15 +1,19 @@
 # @yep/bun
 
-To install dependencies:
+To install:
 
 ```bash
-bun install
+bun add @yep/bun
 ```
 
-To run:
+To use:
 
-```bash
-bun run main.ts
+```typescript
+import { createNapServer } from '@nap/bun'
+
+const napServer = createNapServer({routes: {
+  '/': () => 'Hello, world!'
+}})
+
+napServer.start()
 ```
-
-This project was created using `bun init` in bun v1.2.2. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.

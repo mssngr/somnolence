@@ -2,7 +2,10 @@
 	"name": "@nap/bun",
 	"module": "main.ts",
 	"type": "module",
+	"version": "0.0.1",
+	"license": "MIT",
 	"scripts": {
+		"publish-pkg": "bun publish --access public",
 		"type-check": "tsc --noEmit"
 	},
 	"devDependencies": {
