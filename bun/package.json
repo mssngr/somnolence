@@ -1,5 +1,5 @@
 {
-	"name": "@nap/bun",
+	"name": "@somnolence/bun",
 	"module": "main.ts",
 	"type": "module",
 	"version": "0.0.1",

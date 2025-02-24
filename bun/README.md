@@ -1,9 +1,9 @@
-# @yep/bun
+# @somnolence/bun
 
 To install:
 
 ```bash
-bun add @yep/bun
+bun add @somnolence/bun
 ```
 
 To use:
