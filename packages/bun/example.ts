@@ -24,6 +24,12 @@ const example = createSomnolenceServer({
         handler: () => 'Child route',
       }),
     },
+    authorized: createRoute({
+      input: t.Null(),
+      output: t.String(),
+      handler: () => 'Authorized route',
+      authorizer: req => req.headers.get('Authorization') === 'Bearer 1234',
+    }),
   },
 })
 

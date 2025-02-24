@@ -1,8 +1,9 @@
 {
   "name": "@somnolence/bun",
   "module": "index.ts",
+  "files": ["index.ts", "t.ts"],
   "type": "module",
-  "version": "0.0.7",
+  "version": "0.0.9",
   "license": "MIT",
   "homepage": "https://github.com/mssngr/somnolence#readme",
   "repository": {

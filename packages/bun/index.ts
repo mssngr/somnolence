@@ -6,7 +6,7 @@ export type Route = {
   input: TSchema
   output: TSchema
   handler: (input: Static<TSchema>) => Static<TSchema>
-  authorize?: (req: Request, input: Static<TSchema>) => boolean
+  authorizer?: (req: Request, input: Static<TSchema>) => boolean
 }
 export type Routes = {
   [route: string]: Route | Routes
@@ -67,34 +67,42 @@ export function createSomnolenceServer({
         async fetch(req) {
           try {
             const url = new URL(req.url)
+            // If it's the schema route, return the JSON Schema
             if (url.pathname === '/__schema') {
-              console.log(schema)
               return Response.json(schema)
             }
             const route: Route | undefined =
               flattenedRoutes[dotNotatePath(url.pathname)]
-            if (route?.handler) {
-              const queryParams = queryString.parse(
-                url.searchParams.toString(),
-                {
-                  parseBooleans: true,
-                  parseNumbers: true,
-                  arrayFormat: 'comma',
-                },
-              )
-              const body = req.body && (await req.json())
-              const input = { ...queryParams, ...(body || {}) }
-              try {
-                Value.Assert(route.input, input)
-              } catch (err) {
-                const error = err as AssertError
-                console.error(error.message)
-                return new Response(error.message, { status: 400 })
-              }
-              const output = route.handler(input)
-              return Response.json({ output })
+
+            // If the route doesn't have a handler, return a 404
+            if (!route?.handler) {
+              return new Response('Not Found', { status: 404 })
             }
-            return new Response('Not Found', { status: 404 })
+
+            const queryParams = queryString.parse(url.searchParams.toString(), {
+              parseBooleans: true,
+              parseNumbers: true,
+              arrayFormat: 'comma',
+            })
+            const body = req.body && (await req.json())
+            const input = { ...queryParams, ...(body || {}) }
+
+            // If the request is not authorized, return a 401
+            if (route.authorizer && !route.authorizer(req, input)) {
+              return new Response('Not Authorized', { status: 401 })
+            }
+
+            // Validate the input against the schema
+            try {
+              Value.Assert(route.input, input)
+            } catch (err) {
+              const error = err as AssertError
+              console.error(error.message)
+              return new Response(error.message, { status: 400 })
+            }
+
+            // Run the handler and respond with the output
+            return Response.json({ output: route.handler(input) })
           } catch (err) {
             const error = err as Error
             console.error(error)
@@ -106,16 +114,16 @@ export function createSomnolenceServer({
   }
 }
 
-export function createRoute<Input extends TSchema, Output extends TSchema>({
-  input,
-  output,
-  handler,
-}: {
+export function createRoute<
+  Input extends TSchema,
+  Output extends TSchema,
+>(args: {
   input: Input
   output: Output
   handler: (input: Static<Input>) => Static<Output>
+  authorizer?: (req: Request, input: Static<Input>) => boolean
 }): Route {
-  return { input, output, handler }
+  return args
 }
 
 export { default as t } from './t'
