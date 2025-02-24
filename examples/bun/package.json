@@ -10,9 +10,9 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@somnolence/bun": "^0.0.2"
+    "@somnolence/bun": "^0.0.3"
   }
 }

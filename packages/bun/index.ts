@@ -3,12 +3,10 @@ import queryString from 'query-string'
 import tsj from 'ts-json-schema-generator'
 
 export type Handler<Input, Output> = (input: Input) => Output
-// export type HandlerProp = { _handler: Handler<unknown, unknown> };
-// export type Route = HandlerProp & { [subroute: string]: Route };
 export type Route = Handler<unknown, unknown> | { [subroute: string]: Route }
 export type Routes = Record<string, Route>
 
-function formatPath(path: string): string {
+function dotNotatePath(path: string): string {
   // Take off leading and trailing slashes and replace remaining slashes with dots
   return path.replace(/^\//, '').replace(/\/$/, '').replace(/\//g, '.')
 }
@@ -17,20 +15,26 @@ function findRoute({
   routes,
   path,
 }: { routes: Routes; path: string }): Route | undefined {
-  const formattedPath = formatPath(path)
-  return notate(routes, formattedPath)
+  const dotNotationPath = dotNotatePath(path)
+  // Find the route by its dot notation path
+  return notate(routes, dotNotationPath)
 }
 
-export function createSomnolenceServer<T extends Routes>({
+export function createSomnolenceServer<UserDefinedRoutes extends Routes>({
   port = 3000,
   routes,
-}: { port?: number; routes: T }) {
-  const formattedRoutes = Object.entries(routes).reduce<Routes>(
+  routesType,
+}: {
+  port?: number
+  routes: UserDefinedRoutes
+  routesType?: { name?: string; path?: string }
+}) {
+  const formattedRoutes = Object.entries(routes).reduce<UserDefinedRoutes>(
     (accum, [path, route]) => {
-      const newAccum = Object.assign(accum, { [formatPath(path)]: route })
+      const newAccum = Object.assign(accum, { [dotNotatePath(path)]: route })
       return newAccum
     },
-    {} as Routes,
+    {} as UserDefinedRoutes,
   )
   return {
     start() {
@@ -43,11 +47,11 @@ export function createSomnolenceServer<T extends Routes>({
             if (url.pathname === '/__types') {
               const jsonSchema = tsj
                 .createGenerator({
-                  path: './main',
-                  tsconfig: './tsconfig.json',
+                  path: routesType?.path ?? './',
+                  // tsconfig: './tsconfig.json',
                   type: '*',
                 })
-                .createSchema('Routes')
+                .createSchema(routesType?.name ?? 'Routes')
               return Response.json(jsonSchema)
             }
             const route = findRoute({

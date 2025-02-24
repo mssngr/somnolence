@@ -11,12 +11,19 @@ To use:
 ```typescript
 import { createSomnolenceServer } from '@somnolence/bun'
 
-const somnolence = createSomnolenceServer({
-  port: 9876, // Defaults to 3000
+export type Routes = {
+  hello: () => string
+}
+
+const somnolence = createSomnolenceServer<Routes>({
   routes: {
     hello: () => 'Hello, world!',
   },
 })
 
 somnolence.start()
+```
+
+```bash
+curl http://localhost:3000/hello
 ```
