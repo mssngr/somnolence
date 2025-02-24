@@ -1,20 +1,28 @@
 {
-	"name": "@somnolence/bun",
-	"module": "main.ts",
-	"type": "module",
-	"version": "0.0.2",
-	"license": "MIT",
-	"scripts": {
-		"publish-pkg": "bun publish --access public",
-		"type-check": "tsc --noEmit"
-	},
-	"devDependencies": {
-		"@types/bun": "latest",
-		"typescript": "^5.0.0"
-	},
-	"dependencies": {
-		"notate": "^2.1.1",
-		"query-string": "^9.1.1",
-		"ts-json-schema-generator": "^2.3.0"
-	}
+  "name": "@somnolence/bun",
+  "module": "index.ts",
+  "type": "module",
+  "version": "0.0.3",
+  "license": "MIT",
+  "homepage": "https://github.com/mssngr/somnolence#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mssngr/somnolence.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mssngr/somnolence/issues"
+  },
+  "scripts": {
+    "publish-pkg": "bun publish --access public",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "notate": "^2.1.1",
+    "query-string": "^9.1.1",
+    "ts-json-schema-generator": "^2.3.0"
+  }
 }
