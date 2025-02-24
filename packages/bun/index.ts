@@ -27,7 +27,7 @@ export function createSomnolenceServer<UserDefinedRoutes extends Routes>({
 }: {
   port?: number
   routes: UserDefinedRoutes
-  routesType?: { name?: string; path?: string }
+  routesType?: { configPath: string; name?: string; path: string }
 }) {
   const formattedRoutes = Object.entries(routes).reduce<UserDefinedRoutes>(
     (accum, [path, route]) => {
@@ -48,7 +48,7 @@ export function createSomnolenceServer<UserDefinedRoutes extends Routes>({
               const jsonSchema = tsj
                 .createGenerator({
                   path: routesType?.path ?? './',
-                  // tsconfig: './tsconfig.json',
+                  tsconfig: routesType?.configPath ?? './tsconfig.json',
                   type: '*',
                 })
                 .createSchema(routesType?.name ?? 'Routes')

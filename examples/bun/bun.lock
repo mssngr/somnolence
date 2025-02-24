@@ -4,7 +4,7 @@
     "": {
       "name": "@nap/bun-example",
       "dependencies": {
-        "@somnolence/bun": "^0.0.3",
+        "@somnolence/bun": "^0.0.4",
       },
       "devDependencies": {
         "@types/bun": "latest",
@@ -19,7 +19,7 @@
 
     "@pkgjs/parseargs": ["@pkgjs/parseargs@0.11.0", "", {}, "sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg=="],
 
-    "@somnolence/bun": ["@somnolence/bun@0.0.3", "", { "dependencies": { "notate": "^2.1.1", "query-string": "^9.1.1", "ts-json-schema-generator": "^2.3.0" } }, "sha512-xQbrxrFvRonYuxANvBZwXFlZ3WrJn+fZXq4AaGBWFfKv3RqVttxbsWrJXojwujgZFevGjKm3j1COCMPA+G69bA=="],
+    "@somnolence/bun": ["@somnolence/bun@0.0.4", "", { "dependencies": { "notate": "^2.1.1", "query-string": "^9.1.1", "ts-json-schema-generator": "^2.3.0" } }, "sha512-iJ1c/3oynks0aniLta5PofrE+zb1Rk7sOBVLsAuT6rxumAqn6ew+RPtecIsSAt2Vir32vPjs1QiI7NaB+WO5xw=="],
 
     "@types/bun": ["@types/bun@1.2.3", "", { "dependencies": { "bun-types": "1.2.3" } }, "sha512-054h79ipETRfjtsCW9qJK8Ipof67Pw9bodFWmkfkaUaRiIQ1dIV2VTlheshlBx3mpKr0KeK8VqnMMCtgN9rQtw=="],
 

@@ -22,6 +22,9 @@ const somnolence = createSomnolenceServer<Routes>({
       },
     },
   },
+  routesType: {
+    path: './main',
+  },
 })
 
 somnolence.start()
