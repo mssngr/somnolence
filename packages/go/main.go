@@ -9,16 +9,19 @@ type Route struct {
 	Authorizer func(req any, input any) bool
 }
 
-type SomnolenceServer interface {
-	Start() any
+type SomnolenceServer struct {
+	Port int
+	Start func()
 }
 
 func CreateSomnolenceServer(port int, routes []Route) SomnolenceServer {
-	return SomnolenceServer{
-		Start: func() {
-			fmt.Println("Starting server on port", port)
-		},
+	somnolenceServer := SomnolenceServer{
+		Port: port,
 	}
+	somnolenceServer.Start = func() {
+		fmt.Println("💤 Somnolence is running at http://localhost:", port)
+	}
+	return somnolenceServer
 }
 
 func main() {
