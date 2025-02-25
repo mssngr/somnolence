@@ -1,6 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"net/http"
+	"os"
+)
 
 type Route struct {
 	Input any
@@ -19,7 +24,19 @@ func CreateSomnolenceServer(port int, routes []Route) SomnolenceServer {
 		Port: port,
 	}
 	somnolenceServer.Start = func() {
-		fmt.Println("💤 Somnolence is running at http://localhost:", port)
+		fmt.Printf("💤 Somnolence is running at http://localhost:%v", port)
+
+		http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
+			fmt.Fprintf(w, "Hello, %s!", r.URL.Query().Get("name"))
+		})
+
+		err := http.ListenAndServe(":3333", nil)
+		if errors.Is(err, http.ErrServerClosed) {
+			fmt.Printf("server closed\n")
+		} else if err != nil {
+			fmt.Printf("error starting server: %s\n", err)
+			os.Exit(1)
+		}
 	}
 	return somnolenceServer
 }
