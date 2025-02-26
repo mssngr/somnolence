@@ -54,10 +54,6 @@ func CreateSomnolenceServer(port int, routes Routes) SomnolenceServer {
 			})
 		}
 
-		http.HandleFunc("/hello", func(w http.ResponseWriter, r *http.Request) {
-			fmt.Fprintf(w, "Hello, %s!", r.URL.Query().Get("name"))
-		})
-
 		err := http.ListenAndServe(fmt.Sprintf(":%v", port), nil)
 		if errors.Is(err, http.ErrServerClosed) {
 			fmt.Println("server closed")
