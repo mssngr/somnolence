@@ -1,4 +1,4 @@
-import { createSomnolenceServer, createRoute, t } from './'
+import { createRoute, createSomnolenceServer, t } from './'
 
 const example = createSomnolenceServer({
   routes: {
@@ -29,6 +29,13 @@ const example = createSomnolenceServer({
       output: t.String(),
       handler: () => 'Authorized route',
       authorizer: req => req.headers.get('Authorization') === 'Bearer 1234',
+    }),
+    lifecycle: createRoute({
+      input: t.Null(),
+      output: t.String(),
+      handler: () => 'Lifecycle route',
+      onStart: () => console.log('Starting...'),
+      onFinish: () => console.log('Finishing...'),
     }),
   },
 })

@@ -1,4 +1,4 @@
-import type { TSchema, Static } from '@sinclair/typebox'
+import type { Static, TSchema } from '@sinclair/typebox'
 import { type AssertError, Value } from '@sinclair/typebox/value'
 import queryString from 'query-string'
 
@@ -7,6 +7,12 @@ export type Route = {
   output: TSchema
   handler: (input: Static<TSchema>) => Static<TSchema>
   authorizer?: (req: Request, input: Static<TSchema>) => boolean
+  onStart?: (req: Request, input?: Static<TSchema>) => void
+  onFinish?: (
+    req: Request,
+    input?: Static<TSchema>,
+    output?: Static<TSchema>,
+  ) => void
 }
 export type Routes = {
   [route: string]: Route | Routes
@@ -74,8 +80,12 @@ export function createSomnolenceServer({
             const route: Route | undefined =
               flattenedRoutes[dotNotatePath(url.pathname)]
 
+            // If the route has an onStart function, run it
+            route.onStart?.(req)
+
             // If the route doesn't have a handler, return a 404
             if (!route?.handler) {
+              route.onFinish?.(req)
               return new Response('Not Found', { status: 404 })
             }
 
@@ -89,6 +99,7 @@ export function createSomnolenceServer({
 
             // If the request is not authorized, return a 401
             if (route.authorizer && !route.authorizer(req, input)) {
+              route.onFinish?.(req, input)
               return new Response('Not Authorized', { status: 401 })
             }
 
@@ -97,12 +108,17 @@ export function createSomnolenceServer({
               Value.Assert(route.input, input)
             } catch (err) {
               const error = err as AssertError
-              console.error(error.message)
+              route.onFinish?.(req, input)
               return new Response(error.message, { status: 400 })
             }
 
-            // Run the handler and respond with the output
-            return Response.json({ output: route.handler(input) })
+            const output = route.handler(input)
+
+            // If the route has an onFinish function, run it
+            route.onFinish?.(req, input, output)
+
+            // Respond with the output
+            return Response.json({ output })
           } catch (err) {
             const error = err as Error
             console.error(error)
@@ -122,6 +138,12 @@ export function createRoute<
   output: Output
   handler: (input: Static<Input>) => Static<Output>
   authorizer?: (req: Request, input: Static<Input>) => boolean
+  onStart?: (req: Request, input: Static<Input>) => void
+  onFinish?: (
+    req: Request,
+    input: Static<Input>,
+    output: Static<Output>,
+  ) => void
 }): Route {
   return args
 }
