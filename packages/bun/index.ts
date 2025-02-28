@@ -1,23 +1,7 @@
-import type { Static, TSchema } from '@sinclair/typebox'
+import type { TSchema } from '@sinclair/typebox'
 import { type AssertError, Value } from '@sinclair/typebox/value'
 import queryString from 'query-string'
-
-export type Route = {
-  input: TSchema
-  output: TSchema
-  handler: (input: Static<TSchema>) => Static<TSchema>
-  authorizer?: (req: Request, input: Static<TSchema>) => boolean
-  onStart?: (req: Request, input?: Static<TSchema>) => void
-  onFinish?: (
-    req: Request,
-    input?: Static<TSchema>,
-    output?: Static<TSchema>,
-  ) => void
-}
-export type Routes = {
-  [route: string]: Route | Routes
-}
-export type Schema = Record<string, { input: TSchema; output: TSchema }>
+import type * as T from './types'
 
 function dotNotatePath(path: string): string {
   // Take off leading and trailing slashes and replace remaining slashes with dots
@@ -25,14 +9,14 @@ function dotNotatePath(path: string): string {
 }
 
 function flattenRoutes(
-  routes: Routes,
+  routes: T.Routes,
   parentPath?: string,
-): Record<string, Route> {
+): Record<string, T.Route> {
   const dotNotationParentPath = parentPath ? dotNotatePath(parentPath) : ''
-  return Object.entries(routes).reduce<Record<string, Route>>(
+  return Object.entries(routes).reduce<Record<string, T.Route>>(
     (accum, [path, route]) => {
       const dotNotationPath = dotNotatePath(path)
-      if (route.input && route.output && route.handler) {
+      if (route.response && route.handler) {
         return Object.assign(accum, {
           [`${dotNotationParentPath}${dotNotationParentPath && dotNotationPath && '.'}${dotNotationPath}`]:
             route,
@@ -41,12 +25,12 @@ function flattenRoutes(
       return Object.assign(
         accum,
         flattenRoutes(
-          route as Routes,
+          route as T.Routes,
           `${dotNotationParentPath}${dotNotatePath(path)}`,
         ),
       )
     },
-    {} as Record<string, Route>,
+    {} as Record<string, T.Route>,
   )
 }
 
@@ -55,15 +39,15 @@ export function createSomnolenceServer({
   routes,
 }: {
   port?: number
-  routes: Routes
+  routes: T.Routes
 }) {
   const flattenedRoutes = flattenRoutes(routes)
-  const schema = Object.entries(flattenedRoutes).reduce<Schema>(
-    (accum, [path, { input, output }]) =>
+  const schema = Object.entries(flattenedRoutes).reduce<T.Schema>(
+    (accum, [path, { query, body, response }]) =>
       Object.assign(accum, {
-        [path]: { input, output },
+        [path]: { query, body, response },
       }),
-    {} as Schema,
+    {} as T.Schema,
   )
   return {
     start() {
@@ -73,52 +57,59 @@ export function createSomnolenceServer({
         async fetch(req) {
           try {
             const url = new URL(req.url)
+
             // If it's the schema route, return the JSON Schema
             if (url.pathname === '/__schema') {
               return Response.json(schema)
             }
-            const route: Route | undefined =
+            const route: T.Route | undefined =
               flattenedRoutes[dotNotatePath(url.pathname)]
-
-            // If the route has an onStart function, run it
-            route.onStart?.(req)
-
-            // If the route doesn't have a handler, return a 404
-            if (!route?.handler) {
-              route.onFinish?.(req)
-              return new Response('Not Found', { status: 404 })
-            }
-
-            const queryParams = queryString.parse(url.searchParams.toString(), {
+            const query = queryString.parse(url.searchParams.toString(), {
               parseBooleans: true,
               parseNumbers: true,
               arrayFormat: 'comma',
             })
-            const body = req.body && (await req.json())
-            const input = { ...queryParams, ...(body || {}) }
+            const body = req.body ? await req.json() : {}
+
+            // If the route has an onStart function, run it
+            route.onStart?.({ req, query, body })
+
+            // If the route doesn't have a handler, return a 404
+            if (!route?.handler) {
+              const errorMsg = `Route not found: ${url.pathname}`
+              console.error(errorMsg)
+              route.onFinish?.({ req, query, body, response: errorMsg })
+              return new Response(errorMsg, { status: 404 })
+            }
 
             // If the request is not authorized, return a 401
-            if (route.authorizer && !route.authorizer(req, input)) {
-              route.onFinish?.(req, input)
-              return new Response('Not Authorized', { status: 401 })
+            if (!route.authorizer?.({ req, query, body })) {
+              const errorMsg = 'Not Authorized'
+              console.error(errorMsg)
+              route.onFinish?.({ req, query, body, response: errorMsg })
+              return new Response(errorMsg, { status: 401 })
             }
 
             // Validate the input against the schema
             try {
-              Value.Assert(route.input, input)
+              route.query && Value.Assert(route.query, query)
+              route.body && Value.Assert(route.body, body)
             } catch (err) {
               const error = err as AssertError
-              route.onFinish?.(req, input)
+              route.onFinish?.({ req, query, body, response: error.message })
               return new Response(error.message, { status: 400 })
             }
 
-            const output = route.handler(input)
+            const response = route.handler({ query, body })
 
             // If the route has an onFinish function, run it
-            route.onFinish?.(req, input, output)
+            route.onFinish?.({ req, query, body, response })
 
             // Respond with the output
-            return Response.json({ output })
+            if (typeof response === 'object' && response !== null) {
+              return Response.json({ response })
+            }
+            return new Response(response as BodyInit)
           } catch (err) {
             const error = err as Error
             console.error(error)
@@ -131,21 +122,12 @@ export function createSomnolenceServer({
 }
 
 export function createRoute<
-  Input extends TSchema,
-  Output extends TSchema,
->(args: {
-  input: Input
-  output: Output
-  handler: (input: Static<Input>) => Static<Output>
-  authorizer?: (req: Request, input: Static<Input>) => boolean
-  onStart?: (req: Request, input: Static<Input>) => void
-  onFinish?: (
-    req: Request,
-    input: Static<Input>,
-    output: Static<Output>,
-  ) => void
-}): Route {
-  return args
+  Q extends TSchema,
+  B extends TSchema,
+  R extends TSchema,
+>(route: T.UserDefinedRoute<Q, B, R>): T.Route {
+  return route
 }
 
 export { default as t } from './t'
+export * from './types'
