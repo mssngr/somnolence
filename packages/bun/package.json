@@ -20,8 +20,8 @@
     "url": "https://github.com/mssngr/somnolence/issues"
   },
   "scripts": {
-    "start": "bun example.ts",
-    "dev": "bun --watch example.ts",
+    "start": "bun src/example.ts",
+    "dev": "bun --watch src/example.ts",
     "publish-pkg": "bun publish -p --access public",
     "type-check": "tsc --noEmit"
   },

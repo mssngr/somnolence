@@ -1,8 +1,9 @@
 import { Text } from 'ink'
+import React from 'react'
 import zod from 'zod'
 
 export const options = zod.object({
-  name: zod.string().describe('Your name'),
+  name: zod.string().default('Stranger').describe('Name'),
 })
 
 type Props = {
@@ -10,5 +11,9 @@ type Props = {
 }
 
 export default function Index({ options }: Props) {
-  return <Text>Hello, {options.name}!</Text>
+  return (
+    <Text>
+      Hello, <Text color="green">{options.name}</Text>
+    </Text>
+  )
 }
