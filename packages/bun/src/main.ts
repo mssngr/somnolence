@@ -1,38 +1,6 @@
 import type { TSchema } from '@sinclair/typebox'
-import { type AssertError, Value } from '@sinclair/typebox/value'
-import queryString from 'query-string'
 import type * as T from './types'
-
-function dotNotatePath(path: string): string {
-  // Take off leading and trailing slashes and replace remaining slashes with dots
-  return path.replace(/^\//, '').replace(/\/$/, '').replace(/\//g, '.')
-}
-
-function flattenRoutes(
-  routes: T.Routes,
-  parentPath?: string,
-): Record<string, T.Route> {
-  const dotNotationParentPath = parentPath ? dotNotatePath(parentPath) : ''
-  return Object.entries(routes).reduce<Record<string, T.Route>>(
-    (accum, [path, route]) => {
-      const dotNotationPath = dotNotatePath(path)
-      if (route.response && route.handler) {
-        return Object.assign(accum, {
-          [`${dotNotationParentPath}${dotNotationParentPath && dotNotationPath && '.'}${dotNotationPath}`]:
-            route,
-        })
-      }
-      return Object.assign(
-        accum,
-        flattenRoutes(
-          route as T.Routes,
-          `${dotNotationParentPath}${dotNotatePath(path)}`,
-        ),
-      )
-    },
-    {} as Record<string, T.Route>,
-  )
-}
+import * as U from './utils'
 
 export function createSomnolenceServer({
   port = 3000,
@@ -41,14 +9,8 @@ export function createSomnolenceServer({
   port?: number
   routes: T.Routes
 }) {
-  const flattenedRoutes = flattenRoutes(routes)
-  const schema = Object.entries(flattenedRoutes).reduce<T.Schema>(
-    (accum, [path, { query, body, response }]) =>
-      Object.assign(accum, {
-        [path]: { query, body, response },
-      }),
-    {} as T.Schema,
-  )
+  const flattenedRoutes = U.flattenRoutes(routes)
+  const schema = U.generateSchema(flattenedRoutes)
   return {
     start() {
       console.info(`💤 Somnolence is running at http://localhost:${port}`)
@@ -62,23 +24,22 @@ export function createSomnolenceServer({
             if (url.pathname === '/__schema') {
               return Response.json(schema)
             }
-            const route: T.Route | undefined =
-              flattenedRoutes[dotNotatePath(url.pathname)]
-            const query = queryString.parse(url.searchParams.toString(), {
-              parseBooleans: true,
-              parseNumbers: true,
-              arrayFormat: 'comma',
+
+            // Otherwise, find the route and related input data
+            const { route, query, body } = await U.getRouteQueryAndBody({
+              routes: flattenedRoutes,
+              req,
+              url,
             })
-            const body = req.body ? await req.json() : {}
 
             // If the route has an onStart function, run it
-            route.onStart?.({ req, query, body })
+            route?.onStart?.({ req, query, body })
 
             // If the route doesn't have a handler, return a 404
-            if (!route?.handler) {
+            if (!route || !route?.handler) {
               const errorMsg = `Route not found: ${url.pathname}`
               console.error(errorMsg)
-              route.onFinish?.({ req, query, body, response: errorMsg })
+              route?.onFinish?.({ req, query, body, response: errorMsg })
               return new Response(errorMsg, { status: 404 })
             }
 
@@ -92,20 +53,24 @@ export function createSomnolenceServer({
 
             // Validate the input against the schema
             try {
-              route.query && Value.Assert(route.query, query)
-              route.body && Value.Assert(route.body, body)
+              U.validateSchema({
+                route,
+                query,
+                body,
+              })
             } catch (err) {
-              const error = err as AssertError
+              const error = err as Error
               route.onFinish?.({ req, query, body, response: error.message })
               return new Response(error.message, { status: 400 })
             }
 
+            // Get the response
             const response = route.handler({ query, body })
 
             // If the route has an onFinish function, run it
             route.onFinish?.({ req, query, body, response })
 
-            // Respond with the output
+            // Return the handled response
             if (typeof response === 'object' && response !== null) {
               return Response.json({ response })
             }
@@ -128,6 +93,3 @@ export function createRoute<
 >(route: T.UserDefinedRoute<Q, B, R>): T.Route {
   return route
 }
-
-export { default as t } from './t'
-export * from './types'

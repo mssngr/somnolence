@@ -10,14 +10,14 @@ const example = createSomnolenceServer({
     helloGet: createRoute({
       method: 'GET',
       query: t.Object({ name: t.String() }),
-      response: t.Object({ greeting: t.String() }),
-      handler: ({ query: { name } }) => ({ greeting: `Hello, ${name}!` }),
+      response: t.String(),
+      handler: ({ query: { name } }) => `Hello, ${name}!`,
     }),
     helloPost: createRoute({
       method: 'POST',
       body: t.Object({ name: t.String() }),
-      response: t.Object({ greeting: t.String() }),
-      handler: ({ body: { name } }) => ({ greeting: `Hello, ${name}!` }),
+      response: t.String(),
+      handler: ({ body: { name } }) => `Hello, ${name}!`,
     }),
     parent: {
       '/': createRoute({

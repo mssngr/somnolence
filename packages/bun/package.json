@@ -1,7 +1,13 @@
 {
   "name": "@somnolence/bun",
-  "module": "index.ts",
-  "files": ["index.ts", "t.ts"],
+  "module": "src/index.ts",
+  "files": [
+    "src/index.ts",
+    "src/main.ts",
+    "src/t.ts",
+    "src/types.d.ts",
+    "src/utils.ts"
+  ],
   "type": "module",
   "version": "0.0.9",
   "license": "MIT",
