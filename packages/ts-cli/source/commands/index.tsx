@@ -77,7 +77,7 @@ export const options = zod.object({
     .describe('Endpoint for your Somnolence Server'),
   outdir: zod
     .string()
-    .default('node_modules/@somnolence/ts-client')
+    .default('node_modules/@somnolence/client')
     .describe('Output directory for generated, type-safe client'),
 })
 

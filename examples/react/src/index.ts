@@ -1,4 +1,4 @@
-import somnolence from '@somnolence/ts-client'
+import somnolence from '@somnolence/client'
 
 somnolence.__root().then(response => console.log(response))
 
