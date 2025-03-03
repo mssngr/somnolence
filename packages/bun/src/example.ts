@@ -7,13 +7,13 @@ const example = createSomnolenceServer({
       response: t.String(),
       handler: () => 'I am root!',
     }),
-    helloGet: createRoute({
+    helloGET: createRoute({
       method: 'GET',
       query: t.Object({ name: t.String() }),
       response: t.String(),
       handler: ({ query: { name } }) => `Hello, ${name}!`,
     }),
-    helloPost: createRoute({
+    helloPOST: createRoute({
       method: 'POST',
       body: t.Object({ name: t.String() }),
       response: t.String(),

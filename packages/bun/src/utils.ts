@@ -1,3 +1,4 @@
+import { type TSchema, Type } from '@sinclair/typebox'
 import { type AssertError, Value } from '@sinclair/typebox/value'
 import queryString from 'query-string'
 import type * as T from './types'
@@ -15,19 +16,16 @@ export function flattenRoutes(
   return Object.entries(routes).reduce<Record<string, T.Route>>(
     (accum, [path, route]) => {
       const dotNotationPath = dotNotatePath(path)
+      const fullPath =
+        dotNotationParentPath && dotNotationPath
+          ? `${dotNotationParentPath}.${dotNotationPath}`
+          : `${dotNotationParentPath}${dotNotationPath}`
       if (route.response && route.handler) {
         return Object.assign(accum, {
-          [`${dotNotationParentPath}${dotNotationParentPath && dotNotationPath && '.'}${dotNotationPath}`]:
-            route,
+          [fullPath]: route,
         })
       }
-      return Object.assign(
-        accum,
-        flattenRoutes(
-          route as T.Routes,
-          `${dotNotationParentPath}${dotNotatePath(path)}`,
-        ),
-      )
+      return Object.assign(accum, flattenRoutes(route as T.Routes, fullPath))
     },
     {} as Record<string, T.Route>,
   )
@@ -35,10 +33,23 @@ export function flattenRoutes(
 
 export function generateSchema(routes: Record<string, T.Route>): T.Schema {
   return Object.entries(routes).reduce<T.Schema>(
-    (accum, [path, { query, body, response }]) =>
-      Object.assign(accum, {
-        [path]: { query, body, response },
-      }),
+    (accum, [path, { method, query, body, response }]) => {
+      const queryObj: { query: TSchema } | Record<string, never> = query
+        ? { query }
+        : {}
+      const bodyObj: { body: TSchema } | Record<string, never> = body
+        ? { body }
+        : {}
+      return Object.assign(accum, {
+        [path || '__root']: Type.Object({
+          path: Type.Literal(path.replace(/\./g, '/')),
+          method: Type.Literal(method),
+          ...queryObj,
+          ...bodyObj,
+          response,
+        }),
+      })
+    },
     {} as T.Schema,
   )
 }
