@@ -44,7 +44,7 @@ export function createSomnolenceServer({
             }
 
             // If the request is not authorized, return a 401
-            if (!route.authorizer?.({ req, query, body })) {
+            if (route.authorizer && !route.authorizer?.({ req, query, body })) {
               const errorMsg = 'Not Authorized'
               console.error(errorMsg)
               route.onFinish?.({ req, query, body, response: errorMsg })

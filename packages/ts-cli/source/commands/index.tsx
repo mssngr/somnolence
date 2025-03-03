@@ -30,7 +30,13 @@ export type ${titlePath}Input = keyof ${titlePath}InputObj extends never ? void 
 
 export async function ${titlePath}(
   args: ${titlePath}Input
-): Promise<${titlePath}['response']> {
+): Promise<{
+  body: ${titlePath}['response']
+  status: number
+} | {
+  error: string
+  status: number
+}> {
   const unknownArgs = args as unknown
   const unknownArgsObj = unknownArgs
     ? unknownArgs as Record<string, unknown>
@@ -48,7 +54,13 @@ export async function ${titlePath}(
     method: '${method}',
     ...bodyObj,
   })
-  return response.json()
+  const contentType = response.headers.get('content-type')
+  const content = contentType === 'application/json'
+    ? await response.json()
+    : await response.text()
+  return response.status === 200
+    ? { body: content, status: response.status }
+    : { error: content, status: response.status }
 }
 `
 }
@@ -73,12 +85,6 @@ export default function Index({ options }: Props) {
     fetch(`${options.endpoint}/__schema`).then(response =>
       response.json().then(async routes => {
         await fs.rm(options.outdir, { recursive: true, force: true })
-        await fs.mkdir(`${options.outdir}/types`, { recursive: true })
-        await fs.writeFile(`${options.outdir}/types/index.d.ts`, '')
-        await fs.writeFile(
-          `${options.outdir}/types/__Routes.d.ts`,
-          "import type * as T from './'\n\nexport type Routes = {\n",
-        )
         await fs.mkdir(`${options.outdir}/routes`, { recursive: true })
         await fs.writeFile(`${options.outdir}/routes/index.ts`, '')
         await fs.writeFile(
@@ -99,31 +105,22 @@ export default function Index({ options }: Props) {
               additionalProperties: false,
               bannerComment: '',
             }).then(ts => {
-              const fileName = `${titlePath}.d.ts`
+              const fileName = `${titlePath}.ts`
               return Promise.all([
-                fs.writeFile(`${options.outdir}/types/${fileName}`, ts),
                 fs.writeFile(
-                  `${options.outdir}/routes/${titlePath}.ts`,
+                  `${options.outdir}/routes/${fileName}`,
                   createRoute({
                     titlePath,
                     typeScript: ts,
-                    url: `${options.endpoint}/${path}`,
+                    url: `${options.endpoint}/${path === '__root' ? '' : path}`,
                     method: (
                       route as { properties: { method: { const: string } } }
                     ).properties.method.const,
                   }),
                 ),
                 fs.appendFile(
-                  `${options.outdir}/types/index.d.ts`,
-                  `export type * from './${fileName}'\n`,
-                ),
-                fs.appendFile(
-                  `${options.outdir}/types/__Routes.d.ts`,
-                  `  '${path}': T.${titlePath}\n`,
-                ),
-                fs.appendFile(
                   `${options.outdir}/routes/index.ts`,
-                  `export * from './${titlePath}.ts'\n`,
+                  `export * from './${fileName}'\n`,
                 ),
                 fs.appendFile(
                   `${options.outdir}/index.ts`,
@@ -133,7 +130,6 @@ export default function Index({ options }: Props) {
             })
           }),
         )
-        fs.appendFile(`${options.outdir}/types/__Routes.d.ts`, '}\n')
         fs.appendFile(`${options.outdir}/index.ts`, '}\n')
         fs.writeFile(`${options.outdir}/routes/utils.ts`, utils)
       }),
