@@ -37,30 +37,35 @@ export async function ${titlePath}(
   error: string
   status: number
 }> {
-  const unknownArgs = args as unknown
-  const unknownArgsObj = unknownArgs
-    ? unknownArgs as Record<string, unknown>
-    : {}
-  const queryString = stringifyQuery(unknownArgsObj.query as Record<string, unknown>)
-  const bodyObj = unknownArgsObj.body
-    ? {
-        body: JSON.stringify(unknownArgsObj.body),
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      }
-    : {}
-  const response = await fetch('${url}' + queryString, {
-    method: '${method}',
-    ...bodyObj,
-  })
-  const contentType = response.headers.get('content-type')
-  const content = contentType === 'application/json'
-    ? await response.json()
-    : await response.text()
-  return response.status === 200
-    ? { body: content, status: response.status }
-    : { error: content, status: response.status }
+  try {
+    const unknownArgs = args as unknown
+    const unknownArgsObj = unknownArgs
+      ? unknownArgs as Record<string, unknown>
+      : {}
+    const queryString = stringifyQuery(unknownArgsObj.query as Record<string, unknown>)
+    const bodyObj = unknownArgsObj.body
+      ? {
+          body: JSON.stringify(unknownArgsObj.body),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      : {}
+    const response = await fetch('${url}' + queryString, {
+      method: '${method}',
+      ...bodyObj,
+    })
+    const contentType = response.headers.get('content-type')
+    const content = contentType === 'application/json'
+      ? await response.json()
+      : await response.text()
+    return response.status === 200
+      ? { body: content, status: response.status }
+      : { error: content, status: response.status }
+  } catch (err) {
+    const error = err as Error
+    return { error: error.message, status: 500 }
+  }
 }
 `
 }
