@@ -1,11 +1,49 @@
 {
-	"name": "@somnolence/node",
-	"version": "1.0.0",
-	"main": "dist/main.js",
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"author": "Gabriel Konkle",
-	"license": "MIT",
-	"description": ""
+  "name": "@somnolence/node",
+  "version": "0.0.1",
+  "author": "Gabriel Konkle",
+  "license": "MIT",
+  "description": "The type-safe REST API Framework of your dreams.",
+  "keywords": [
+    "typescript",
+    "type-safe",
+    "type safe",
+    "typed",
+    "rest",
+    "api",
+    "framework",
+    "http",
+    "server",
+    "json schema",
+    "schema",
+    "validation",
+    "rpc"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": ["dist/index.js", "dist/index.d.ts"],
+  "homepage": "https://github.com/mssngr/somnolence#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mssngr/somnolence.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mssngr/somnolence/issues"
+  },
+  "scripts": {
+    "start": "bun src/example.ts",
+    "dev": "bun --watch src/example.ts",
+    "build-js": "bun build src/index.ts --outdir dist --minify --target node",
+    "build-types": "dts-bundle-generator -o dist/index.d.ts src/index.ts",
+    "build-pkg": "rm -rf dist && bun build-js & bun build-types",
+    "publish-pkg": "bun type-check && bun build-pkg && bun publish -p --access public",
+    "type-check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.9",
+    "dts-bundle-generator": "^9.5.1"
+  },
+  "dependencies": {
+    "@somnolence/core": "^0.0.14"
+  }
 }

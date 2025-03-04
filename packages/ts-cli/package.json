@@ -1,7 +1,22 @@
 {
   "name": "@somnolence/cli",
   "version": "0.0.3",
+  "author": "Gabriel Konkle",
   "license": "MIT",
+  "keywords": [
+    "cli",
+    "typescript",
+    "type-safe",
+    "type safe",
+    "typed",
+    "rest",
+    "http",
+    "client",
+    "json schema",
+    "schema",
+    "validation",
+    "rpc"
+  ],
   "bin": {
     "somnolence-ts": "dist/cli.js"
   },

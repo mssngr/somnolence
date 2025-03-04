@@ -1,23 +1,23 @@
-import type { TSchema } from '@sinclair/typebox'
+import type { IncomingMessage } from 'node:http'
 import type * as T from './types'
 import * as U from './utils'
 
-export async function handleRequest(
-  req: Request,
+export async function handleRequest<FR extends Record<string, T.Route>>(
+  req: Request | IncomingMessage,
   {
     schema,
     flattenedRoutes,
     handleResponse,
     handleError,
+    url,
   }: {
     schema: T.Schema
-    flattenedRoutes: Record<string, T.Route>
+    flattenedRoutes: FR
     handleResponse(response: unknown): Response
     handleError(errorMsg: string, status: Response['status']): Response
+    url: URL
   },
 ) {
-  const url = new URL(req.url)
-
   // If it's the schema route, return the JSON Schema
   if (url.pathname === '/__schema') {
     return handleResponse(schema)
@@ -70,12 +70,4 @@ export async function handleRequest(
 
   // Return the handled response
   return handleResponse(response)
-}
-
-export function createRoute<
-  Q extends TSchema,
-  B extends TSchema,
-  R extends TSchema,
->(route: T.UserDefinedRoute<Q, B, R>): T.Route {
-  return route
 }

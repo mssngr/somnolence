@@ -1,7 +1,9 @@
 {
   "name": "@somnolence/core",
-  "version": "0.0.7",
+  "version": "0.0.14",
+  "author": "Gabriel Konkle",
   "license": "MIT",
+  "description": "The type-safe REST API Framework of your dreams.",
   "module": "src/index.ts",
   "types": "src/index.ts",
   "type": "module",
@@ -22,7 +24,8 @@
     "query-string": "^9.1.1"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "@types/node": "^22.13.9"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"

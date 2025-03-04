@@ -1,7 +1,25 @@
 {
   "name": "@somnolence/bun",
-  "version": "0.1.2",
+  "version": "0.1.4",
+  "author": "Gabriel Konkle",
   "license": "MIT",
+  "description": "The type-safe REST API Framework of your dreams.",
+  "keywords": [
+    "bun",
+    "typescript",
+    "type-safe",
+    "type safe",
+    "typed",
+    "rest",
+    "api",
+    "framework",
+    "http",
+    "server",
+    "json schema",
+    "schema",
+    "validation",
+    "rpc"
+  ],
   "module": "src/index.ts",
   "types": "src/index.ts",
   "files": ["src/index.ts", "src/main.ts"],
@@ -21,7 +39,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@somnolence/core": "^0.0.7"
+    "@somnolence/core": "^0.0.12"
   },
   "devDependencies": {
     "@types/bun": "latest"

@@ -1,3 +1,4 @@
+import type { IncomingMessage } from 'node:http'
 import type { Static, TSchema } from '@sinclair/typebox'
 
 export type Route = {
@@ -10,17 +11,17 @@ export type Route = {
     body: Static<TSchema>
   }) => Static<TSchema>
   authorizer?: (_: {
-    req: Request
+    req: Request | IncomingMessage
     query: Static<TSchema>
     body: Static<TSchema>
   }) => boolean
   onStart?: (_: {
-    req: Request
+    req: Request | IncomingMessage
     query: Static<TSchema>
     body: Static<TSchema>
   }) => void
   onFinish?: (_: {
-    req: Request
+    req: Request | IncomingMessage
     query: Static<TSchema>
     body: Static<TSchema>
     response: Static<TSchema>
@@ -38,13 +39,17 @@ export type UserDefinedRoute<
   response: R
   handler: (_: { query: Static<Q>; body: Static<B> }) => Static<R>
   authorizer?: (_: {
-    req: Request
+    req: Request | IncomingMessage
     query: Static<Q>
     body: Static<B>
   }) => boolean
-  onStart?: (_: { req: Request; query: Static<Q>; body: Static<B> }) => void
+  onStart?: (_: {
+    req: Request | IncomingMessage
+    query: Static<Q>
+    body: Static<B>
+  }) => void
   onFinish?: (_: {
-    req: Request
+    req: Request | IncomingMessage
     query: Static<Q>
     body: Static<B>
     response: Static<R>
@@ -59,8 +64,3 @@ export type Schema = Record<
   string,
   { query?: TSchema; body?: TSchema; response: TSchema }
 >
-
-export type CreateSomnolenceServerArgs = {
-  port?: number
-  routes: Routes
-}

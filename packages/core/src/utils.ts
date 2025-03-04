@@ -1,3 +1,4 @@
+import type { IncomingMessage } from 'node:http'
 import { type TSchema, Type } from '@sinclair/typebox'
 import { type AssertError, Value } from '@sinclair/typebox/value'
 import queryString from 'query-string'
@@ -58,14 +59,45 @@ export async function getRouteQueryAndBody({
   routes,
   req,
   url,
-}: { routes: T.Routes; req: Request; url: URL }) {
+}: {
+  routes: Record<string, T.Route>
+  req: Request | IncomingMessage
+  url: URL
+}) {
   const route = routes[dotNotatePath(url.pathname)] as T.Route | undefined
   const query = queryString.parse(url.searchParams.toString(), {
     parseBooleans: true,
     parseNumbers: true,
     arrayFormat: 'comma',
   })
-  const body = req.body ? await req.json() : {}
+
+  if ((process.versions as { bun?: string }).bun) {
+    // Parse the body if it exists
+    const incomingMsg = req as IncomingMessage
+    let body = ''
+    incomingMsg.on('data', chunk => {
+      body += chunk
+    })
+    const parsedBody = await new Promise<string | undefined>((res, rej) => {
+      incomingMsg.on('end', () => {
+        try {
+          if (body) {
+            body = JSON.parse(body)
+            res(body)
+          }
+        } catch (err) {
+          const error = err as Error
+          console.error(error.message)
+          rej(error.message)
+        }
+        res(undefined)
+      })
+    })
+    return { route, query, body: parsedBody }
+  }
+
+  const request = req as Request
+  const body = request.body ? await request.json() : {}
   return { route, query, body }
 }
 
