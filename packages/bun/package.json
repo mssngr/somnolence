@@ -1,6 +1,6 @@
 {
   "name": "@somnolence/bun",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": "Gabriel Konkle",
   "license": "MIT",
   "description": "The type-safe REST API Framework of your dreams.",

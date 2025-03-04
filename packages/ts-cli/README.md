@@ -36,10 +36,10 @@ somnolence
 
 ### The client infers the inputs and outputs of each route:
 _The client automatically knows what inputs are required_<br />
-![The client automatically knows what inputs are required](../../.images/inference3.png)
+![The client automatically knows what inputs are required](https://raw.githubusercontent.com/mssngr/somnolence/refs/heads/main/.images/inference3.png)
 
 _The client automatically knows the response is a string_<br />
-![The client automatically knows the response is a string](../../.images/inference4.png)
+![The client automatically knows the response is a string](https://raw.githubusercontent.com/mssngr/somnolence/refs/heads/main/.images/inference4.png)
 
 ## CLI Options
 ```
