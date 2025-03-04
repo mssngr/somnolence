@@ -56,12 +56,13 @@ curl http://localhost:3000/hello\?name\=comma,delimited,values,make,an,array
 ```typescript
 const somnolence = createSomnolenceServer({
   routes: {
-    hello: createRoute({
-      method: 'POST',
-      body: t.Object({ name: t.String() }),
-      response: t.String(),
-      handler: ({ body: { name } }) => `Hello, ${name}!`,
-    }),
+    hello: {
+      POST: createRoute({
+        body: t.Object({ name: t.String() }),
+        response: t.String(),
+        handler: ({ body: { name } }) => `Hello, ${name}!`,
+      }),
+    },
   },
 })
 ```
@@ -75,17 +76,17 @@ curl -d '{"name":"Gabriel"}' -H "Content-Type: application/json" -X POST http://
 const somnolence = createSomnolenceServer({
   routes: {
     hello: {
-      '/': createRoute({
-        method: 'GET',
+      GET: createRoute({
         query: t.Object({ name: t.String() }),
         response: t.String(),
         handler: ({ query: { name } }) => `Hello, ${name}!`,
-      })
-      world: createRoute({
-        method: 'GET',
-        response: t.String(),
-        handler: ({ body: { name } }) => 'Hello, world!',
-      })
+      }),
+      world: {
+        GET: createRoute({
+          response: t.String(),
+          handler: ({ body: { name } }) => 'Hello, world!',
+        })
+      },
     },
   },
 })
@@ -102,18 +103,19 @@ curl http://localhost:3000/__schema
 ```json
 {
   "hello": {
-    "type": "object",
-    "properties": {
-      "path": { "const": "hello", "type": "string" },
-      "method": { "const": "GET", "type": "string" },
-      "query": {
-        "type": "object",
-        "properties": { "name": { "type": "string" } },
-        "required": ["name"]
+    "GET": {
+      "type": "object",
+      "properties": {
+        "path": { "const": "hello", "type": "string" },
+        "query": {
+          "type": "object",
+          "properties": { "name": { "type": "string" } },
+          "required": ["name"]
+        },
+        "response": { "type": "string" }
       },
-      "response": { "type": "string" }
-    },
-    "required": ["path", "method", "query", "response"]
+      "required": ["path", "query", "response"]
+    }
   }
 }
 ```

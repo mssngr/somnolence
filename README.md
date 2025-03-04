@@ -27,16 +27,17 @@ $ bun add -g @somnolence/cli
 ### Usage
 #### Create the server:
 ```typescript
-import { createRoute, createSomnolenceServer, t } from '@somnolence/bun'
+import { createRoute, createSomnolenceServer, t } from '@somnolence/bun' // Or @somnolence/node
 
 const somnolence = createSomnolenceServer({
   routes: {
-    hello: createRoute({
-      method: 'GET',
-      query: t.Object({ name: t.String() }),
-      response: t.String(),
-      handler: ({ query: { name } }) => `Hello, ${name}!`,
-    }),
+    hello: {
+      GET: createRoute({
+        query: t.Object({ name: t.String() }),
+        response: t.String(),
+        handler: ({ query: { name } }) => `Hello, ${name}!`,
+      }),
+    },
   },
 })
 
