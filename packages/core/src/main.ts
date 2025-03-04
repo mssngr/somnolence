@@ -8,13 +8,11 @@ export async function handleRequest(
     schema,
     flattenedRoutes,
     handleResponse,
-    handleSchemaResponse,
     handleError,
   }: {
     schema: T.Schema
-    flattenedRoutes: Record<string, T.Routes>
+    flattenedRoutes: Record<string, T.Route>
     handleResponse(response: unknown): Response
-    handleSchemaResponse(schema: T.Schema): Response
     handleError(errorMsg: string, status: Response['status']): Response
   },
 ) {
@@ -22,7 +20,7 @@ export async function handleRequest(
 
   // If it's the schema route, return the JSON Schema
   if (url.pathname === '/__schema') {
-    return handleSchemaResponse(schema)
+    return handleResponse(schema)
   }
 
   // Otherwise, find the route and related input data

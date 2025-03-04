@@ -1,15 +1,10 @@
 {
   "name": "@somnolence/bun",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "license": "MIT",
   "module": "src/index.ts",
-  "files": [
-    "src/index.ts",
-    "src/main.ts",
-    "src/t.ts",
-    "src/types.d.ts",
-    "src/utils.ts"
-  ],
+  "types": "src/index.ts",
+  "files": ["src/index.ts", "src/main.ts"],
   "type": "module",
   "homepage": "https://github.com/mssngr/somnolence#readme",
   "repository": {
@@ -26,8 +21,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@sinclair/typebox": "^0.34.28",
-    "query-string": "^9.1.1"
+    "@somnolence/core": "^0.0.7"
   },
   "devDependencies": {
     "@types/bun": "latest"

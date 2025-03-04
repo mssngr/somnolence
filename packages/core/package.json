@@ -1,8 +1,9 @@
 {
   "name": "@somnolence/core",
-  "version": "0.0.2",
+  "version": "0.0.7",
   "license": "MIT",
   "module": "src/index.ts",
+  "types": "src/index.ts",
   "type": "module",
   "homepage": "https://github.com/mssngr/somnolence#readme",
   "repository": {

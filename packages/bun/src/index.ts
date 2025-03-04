@@ -1,3 +1,3 @@
 export * from './main'
-export { default as t } from './t'
-export type * from './types'
+export { createRoute, t } from '@somnolence/core'
+export type * from '@somnolence/core'
