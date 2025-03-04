@@ -5,16 +5,16 @@ Somnolence CLI generates type-safe clients from any server running Somnolence. Y
 ## Install
 ```bash
 # NPM
-$ npm install -g @somnolence/ts-cli
+$ npm install -g @somnolence/cli
 
 # PNPM
-$ pnpm add -g @somnolence/ts-cli
+$ pnpm add -g @somnolence/cli
 
 # Yarn
-$ yarn global add @somnolence/ts-cli
+$ yarn global add @somnolence/cli
 
 # Bun
-$ bun add -g @somnolence/ts-cli
+$ bun add -g @somnolence/cli
 ```
 
 ## Usage

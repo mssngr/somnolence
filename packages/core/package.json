@@ -1,15 +1,8 @@
 {
-  "name": "@somnolence/bun",
-  "version": "0.1.1",
+  "name": "@somnolence/core",
+  "version": "0.0.2",
   "license": "MIT",
   "module": "src/index.ts",
-  "files": [
-    "src/index.ts",
-    "src/main.ts",
-    "src/t.ts",
-    "src/types.d.ts",
-    "src/utils.ts"
-  ],
   "type": "module",
   "homepage": "https://github.com/mssngr/somnolence#readme",
   "repository": {
@@ -20,8 +13,6 @@
     "url": "https://github.com/mssngr/somnolence/issues"
   },
   "scripts": {
-    "start": "bun src/example.ts",
-    "dev": "bun --watch src/example.ts",
     "publish-pkg": "bun publish -p",
     "type-check": "tsc --noEmit"
   },

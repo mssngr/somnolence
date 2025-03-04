@@ -1,6 +1,6 @@
 {
-  "name": "@somnolence/ts-cli",
-  "version": "0.1.0",
+  "name": "@somnolence/cli",
+  "version": "0.0.3",
   "license": "MIT",
   "bin": {
     "somnolence-ts": "dist/cli.js"
@@ -9,12 +9,19 @@
   "engines": {
     "node": ">=16"
   },
+  "files": ["dist"],
+  "homepage": "https://github.com/mssngr/somnolence#readme",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mssngr/somnolence.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mssngr/somnolence/issues"
+  },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch",
-    "publish-pkg": "npm publish --access public"
+    "dev": "tsc --watch"
   },
-  "files": ["dist"],
   "dependencies": {
     "ink": "^4.1.0",
     "json-schema-to-typescript": "^15.0.4",

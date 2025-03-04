@@ -122,6 +122,7 @@ curl http://localhost:3000/__schema
 ### Auto-generate a type-safe client:
 ```bash
 # path/to/your/client
+$ bun add -g @somnolence/cli
 $ somnolence-ts --endpoint http://localhost:3000
 # 💤 Generated Somnolence Client at node_modules/@somnolence/client
 ```

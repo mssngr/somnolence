@@ -9,19 +9,19 @@ Sometimes it's better to show than tell:
 ```bash
 # NPM
 $ npm install @somnolence/node
-$ npm install -g @somnolence/ts-cli
+$ npm install -g @somnolence/cli
 
 # PNPM
 $ pnpm add @somnolence/node
-$ pnpm add -g @somnolence/ts-cli
+$ pnpm add -g @somnolence/cli
 
 # Yarn
 $ yarn add @somnolence/node
-$ yarn global add @somnolence/ts-cli
+$ yarn global add @somnolence/cli
 
 # Bun runs on the much faster (2.5x) Bun HTTP server!
 $ bun add @somnolence/bun
-$ bun add -g @somnolence/ts-cli
+$ bun add -g @somnolence/cli
 ```
 
 ### Usage
