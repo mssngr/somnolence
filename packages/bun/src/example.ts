@@ -2,56 +2,56 @@ import { createRoute, createSomnolenceServer, t } from './'
 
 const example = createSomnolenceServer({
   routes: {
-    '/': createRoute({
-      method: 'GET',
+    GET: createRoute({
       response: t.String(),
       handler: () => 'I am root!',
     }),
-    helloGET: createRoute({
-      method: 'GET',
-      query: t.Object({ name: t.String() }),
-      response: t.String(),
-      handler: ({ query: { name } }) => `Hello, ${name}!`,
-    }),
-    helloPOST: createRoute({
-      method: 'POST',
-      body: t.Object({ name: t.String() }),
-      response: t.String(),
-      handler: ({ body: { name } }) => `Hello, ${name}!`,
-    }),
+    hello: {
+      GET: createRoute({
+        query: t.Object({ name: t.String() }),
+        response: t.String(),
+        handler: ({ query: { name } }) => `Hello, ${name}!`,
+      }),
+      POST: createRoute({
+        body: t.Object({ name: t.String() }),
+        response: t.String(),
+        handler: ({ body: { name } }) => `Hello, ${name}!`,
+      }),
+    },
     parent: {
-      '/': createRoute({
-        method: 'GET',
+      GET: createRoute({
         response: t.String(),
         handler: () => 'Parent route',
       }),
       child: {
-        '/': createRoute({
-          method: 'GET',
+        GET: createRoute({
           response: t.String(),
           handler: () => 'Child route',
         }),
-        grandchild: createRoute({
-          method: 'GET',
-          response: t.String(),
-          handler: () => 'Grandchild route',
-        }),
+        grandchild: {
+          GET: createRoute({
+            response: t.String(),
+            handler: () => 'Grandchild route',
+          }),
+        },
       },
     },
-    authorized: createRoute({
-      method: 'GET',
-      response: t.String(),
-      handler: () => 'Authorized route',
-      authorizer: ({ req }) =>
-        req.headers.get('Authorization') === 'Bearer 1234',
-    }),
-    lifecycle: createRoute({
-      method: 'GET',
-      response: t.String(),
-      handler: () => 'Lifecycle route',
-      onStart: () => console.log('Starting...'),
-      onFinish: () => console.log('Finishing...'),
-    }),
+    authorized: {
+      GET: createRoute({
+        response: t.String(),
+        handler: () => 'Authorized route',
+        authorizer: ({ req }) =>
+          req.headers.get('Authorization') === 'Bearer 1234',
+      }),
+    },
+    lifecycle: {
+      GET: createRoute({
+        response: t.String(),
+        handler: () => 'Lifecycle route',
+        onStart: () => console.log('Starting...'),
+        onFinish: () => console.log('Finishing...'),
+      }),
+    },
   },
 })
 

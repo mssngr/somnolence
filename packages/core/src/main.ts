@@ -2,7 +2,7 @@ import type { IncomingMessage } from 'node:http'
 import type * as T from './types'
 import * as U from './utils'
 
-export async function handleRequest<FR extends Record<string, T.Route>>(
+export async function handleRequest<FR extends T.FlattenedRoutes>(
   req: Request | IncomingMessage,
   {
     schema,
@@ -25,7 +25,7 @@ export async function handleRequest<FR extends Record<string, T.Route>>(
 
   // Otherwise, find the route and related input data
   const { route, query, body } = await U.getRouteQueryAndBody({
-    routes: flattenedRoutes,
+    flattenedRoutes,
     req,
     url,
   })

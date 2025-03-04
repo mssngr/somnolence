@@ -16,12 +16,13 @@ import { createRoute, createSomnolenceServer, t } from '@somnolence/node'
 
 const somnolence = createSomnolenceServer({
   routes: {
-    hello: createRoute({
-      method: 'GET',
-      query: t.Object({ name: t.String() }),
-      response: t.String(),
-      handler: ({ query: { name } }) => `Hello, ${name}!`,
-    }),
+    hello: {
+      GET: createRoute({
+        query: t.Object({ name: t.String() }),
+        response: t.String(),
+        handler: ({ query: { name } }) => `Hello, ${name}!`,
+      })
+    },
   },
 })
 

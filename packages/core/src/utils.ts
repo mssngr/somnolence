@@ -3,6 +3,7 @@ import { type TSchema, Type } from '@sinclair/typebox'
 import { type AssertError, Value } from '@sinclair/typebox/value'
 import queryString from 'query-string'
 import type * as T from './types'
+import { METHODS } from './types'
 
 function dotNotatePath(path: string): string {
   // Take off leading and trailing slashes and replace remaining slashes with dots
@@ -12,59 +13,62 @@ function dotNotatePath(path: string): string {
 export function flattenRoutes(
   routes: T.Routes,
   parentPath?: string,
-): Record<string, T.Route> {
+): T.FlattenedRoutes {
   const dotNotationParentPath = parentPath ? dotNotatePath(parentPath) : ''
-  return Object.entries(routes).reduce<Record<string, T.Route>>(
+  return Object.entries(routes).reduce<T.FlattenedRoutes>(
     (accum, [path, route]) => {
+      if (METHODS.includes(path as T.Method)) {
+        if (!accum[dotNotationParentPath]) {
+          accum[dotNotationParentPath] = {}
+        }
+        accum[dotNotationParentPath][path as T.Method] = route as T.Route
+        return accum
+      }
       const dotNotationPath = dotNotatePath(path)
       const fullPath =
         dotNotationParentPath && dotNotationPath
           ? `${dotNotationParentPath}.${dotNotationPath}`
           : `${dotNotationParentPath}${dotNotationPath}`
-      if (route.response && route.handler) {
-        return Object.assign(accum, {
-          [fullPath]: route,
-        })
-      }
-      return Object.assign(accum, flattenRoutes(route as T.Routes, fullPath))
+      return Object.assign(flattenRoutes(route as T.Routes, fullPath), accum)
     },
-    {} as Record<string, T.Route>,
+    {},
   )
 }
 
-export function generateSchema(routes: Record<string, T.Route>): T.Schema {
-  return Object.entries(routes).reduce<T.Schema>(
-    (accum, [path, { method, query, body, response }]) => {
+export function generateSchema(routes: T.FlattenedRoutes): T.Schema {
+  return Object.entries(routes).reduce<T.Schema>((accum, [path, routeObj]) => {
+    Object.entries(routeObj).forEach(([method, { query, body, response }]) => {
       const queryObj: { query: TSchema } | Record<string, never> = query
         ? { query }
         : {}
       const bodyObj: { body: TSchema } | Record<string, never> = body
         ? { body }
         : {}
-      return Object.assign(accum, {
-        [path || '__root']: Type.Object({
-          path: Type.Literal(path.replace(/\./g, '/')),
-          method: Type.Literal(method),
-          ...queryObj,
-          ...bodyObj,
-          response,
-        }),
+      if (!accum[path || '__root']) {
+        accum[path || '__root'] = {}
+      }
+      accum[path || '__root'][method as T.Method] = Type.Object({
+        path: Type.Literal(path.replace(/\./g, '/')),
+        ...queryObj,
+        ...bodyObj,
+        response,
       })
-    },
-    {} as T.Schema,
-  )
+    })
+    return accum
+  }, {} as T.Schema)
 }
 
 export async function getRouteQueryAndBody({
-  routes,
+  flattenedRoutes,
   req,
   url,
 }: {
-  routes: Record<string, T.Route>
+  flattenedRoutes: T.FlattenedRoutes
   req: Request | IncomingMessage
   url: URL
 }) {
-  const route = routes[dotNotatePath(url.pathname)] as T.Route | undefined
+  const method = req.method as T.Method
+  const route = flattenedRoutes[dotNotatePath(url.pathname)]?.[method]
   const query = queryString.parse(url.searchParams.toString(), {
     parseBooleans: true,
     parseNumbers: true,
@@ -72,33 +76,33 @@ export async function getRouteQueryAndBody({
   })
 
   if ((process.versions as { bun?: string }).bun) {
-    // Parse the body if it exists
-    const incomingMsg = req as IncomingMessage
-    let body = ''
-    incomingMsg.on('data', chunk => {
-      body += chunk
-    })
-    const parsedBody = await new Promise<string | undefined>((res, rej) => {
-      incomingMsg.on('end', () => {
-        try {
-          if (body) {
-            body = JSON.parse(body)
-            res(body)
-          }
-        } catch (err) {
-          const error = err as Error
-          console.error(error.message)
-          rej(error.message)
-        }
-        res(undefined)
-      })
-    })
-    return { route, query, body: parsedBody }
+    const request = req as Request
+    const body = request.body ? await request.json() : {}
+    return { route, query, body }
   }
 
-  const request = req as Request
-  const body = request.body ? await request.json() : {}
-  return { route, query, body }
+  // Parse the body if it exists
+  const incomingMsg = req as IncomingMessage
+  let body = ''
+  incomingMsg.on('data', chunk => {
+    body += chunk
+  })
+  const parsedBody = await new Promise<string | undefined>((res, rej) => {
+    incomingMsg.on('end', () => {
+      try {
+        if (body) {
+          body = JSON.parse(body)
+          res(body)
+        }
+      } catch (err) {
+        const error = err as Error
+        console.error(error.message)
+        rej(error.message)
+      }
+      res(undefined)
+    })
+  })
+  return { route, query, body: parsedBody }
 }
 
 export function validateSchema({

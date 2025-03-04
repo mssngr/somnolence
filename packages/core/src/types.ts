@@ -2,19 +2,18 @@ import type { IncomingMessage } from 'node:http'
 import type { Static, TSchema } from '@sinclair/typebox'
 
 export type Route = {
-  method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
   query?: TSchema
   body?: TSchema
   response: TSchema
   handler: (_: {
     query: Static<TSchema>
     body: Static<TSchema>
-  }) => Static<TSchema>
+  }) => Static<TSchema> | Promise<Static<TSchema>>
   authorizer?: (_: {
     req: Request | IncomingMessage
     query: Static<TSchema>
     body: Static<TSchema>
-  }) => boolean
+  }) => boolean | Promise<boolean>
   onStart?: (_: {
     req: Request | IncomingMessage
     query: Static<TSchema>
@@ -33,16 +32,17 @@ export type UserDefinedRoute<
   B extends TSchema,
   R extends TSchema,
 > = {
-  method: Route['method']
   query?: Q
   body?: B
   response: R
-  handler: (_: { query: Static<Q>; body: Static<B> }) => Static<R>
+  handler: (_: { query: Static<Q>; body: Static<B> }) =>
+    | Static<R>
+    | Promise<Static<R>>
   authorizer?: (_: {
     req: Request | IncomingMessage
     query: Static<Q>
     body: Static<B>
-  }) => boolean
+  }) => boolean | Promise<boolean>
   onStart?: (_: {
     req: Request | IncomingMessage
     query: Static<Q>
@@ -56,11 +56,17 @@ export type UserDefinedRoute<
   }) => void
 }
 
-export type Routes = {
-  [route: string]: Route | Routes
-}
+export const METHODS = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'] as const
+export type Method = (typeof METHODS)[number]
 
-export type Schema = Record<
-  string,
-  { query?: TSchema; body?: TSchema; response: TSchema }
->
+export type RouteObj = Partial<Record<Method, Route>>
+
+export type Routes =
+  | {
+      [route: string]: Routes | RouteObj
+    }
+  | RouteObj
+
+export type FlattenedRoutes = Record<string, RouteObj>
+
+export type Schema = Record<string, Partial<Record<Method, TSchema>>>

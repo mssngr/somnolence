@@ -1,6 +1,7 @@
 import http, { type IncomingMessage } from 'node:http'
 import type { Static, TSchema } from '@sinclair/typebox'
 import {
+  type Method,
   type Route,
   type Routes,
   type UserDefinedRoute,
@@ -51,9 +52,13 @@ type UserDefinedRouteNode<
   }) => void
 }
 
-type RoutesNode = {
-  [route: string]: RouteNode | RoutesNode
-}
+type RouteObjNode = Partial<Record<Method, RouteNode>>
+
+type RoutesNode =
+  | {
+      [route: string]: RoutesNode | RouteObjNode
+    }
+  | RouteObjNode
 
 export function createSomnolenceServer({
   port = 3000,

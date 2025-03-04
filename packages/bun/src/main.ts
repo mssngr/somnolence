@@ -1,5 +1,6 @@
 import type { Static, TSchema } from '@sinclair/typebox'
 import {
+  type Method,
   type Route,
   type Routes,
   type UserDefinedRoute,
@@ -50,9 +51,13 @@ type UserDefinedRouteBun<
   }) => void
 }
 
-type RoutesBun = {
-  [route: string]: RouteBun | RoutesBun
-}
+type RouteObjBun = Partial<Record<Method, RouteBun>>
+
+type RoutesBun =
+  | {
+      [route: string]: RoutesBun | RouteObjBun
+    }
+  | RouteObjBun
 
 export function createSomnolenceServer({
   port = 3000,
