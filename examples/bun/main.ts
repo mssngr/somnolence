@@ -3,27 +3,55 @@ import { createRoute, createSomnolenceServer, t } from '@somnolence/bun'
 const somnolence = createSomnolenceServer({
   routes: {
     '/': createRoute({
-      input: t.Null(),
-      output: t.String(),
+      method: 'GET',
+      response: t.String(),
       handler: () => 'I am root!',
     }),
-    hello: createRoute({
-      input: t.Object({ name: t.String() }),
-      output: t.Object({ greeting: t.String() }),
-      handler: ({ name }) => ({ greeting: `Hello, ${name}!` }),
+    helloGET: createRoute({
+      method: 'GET',
+      query: t.Object({ name: t.String() }),
+      response: t.String(),
+      handler: ({ query: { name } }) => `Hello, ${name}!`,
+    }),
+    helloPOST: createRoute({
+      method: 'POST',
+      body: t.Object({ name: t.String() }),
+      response: t.String(),
+      handler: ({ body: { name } }) => `Hello, ${name}!`,
     }),
     parent: {
       '/': createRoute({
-        input: t.Null(),
-        output: t.String(),
+        method: 'GET',
+        response: t.String(),
         handler: () => 'Parent route',
       }),
-      child: createRoute({
-        input: t.Null(),
-        output: t.String(),
-        handler: () => 'Child route',
-      }),
+      child: {
+        '/': createRoute({
+          method: 'GET',
+          response: t.String(),
+          handler: () => 'Child route',
+        }),
+        grandchild: createRoute({
+          method: 'GET',
+          response: t.String(),
+          handler: () => 'Grandchild route',
+        }),
+      },
     },
+    authorized: createRoute({
+      method: 'GET',
+      response: t.String(),
+      handler: () => 'Authorized route',
+      authorizer: ({ req }) =>
+        req.headers.get('Authorization') === 'Bearer 1234',
+    }),
+    lifecycle: createRoute({
+      method: 'GET',
+      response: t.String(),
+      handler: () => 'Lifecycle route',
+      onStart: () => console.log('Starting...'),
+      onFinish: () => console.log('Finishing...'),
+    }),
   },
 })
 

@@ -1,6 +1,6 @@
 {
   "name": "@somnolence/ts-cli",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "license": "MIT",
   "bin": {
     "somnolence-ts": "dist/cli.js"
@@ -11,11 +11,10 @@
   },
   "scripts": {
     "build": "tsc",
-    "dev": "tsc --watch"
+    "dev": "tsc --watch",
+    "publish-pkg": "npm publish --access public"
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "dependencies": {
     "ink": "^4.1.0",
     "json-schema-to-typescript": "^15.0.4",

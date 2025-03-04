@@ -33,16 +33,16 @@ export async function ${titlePath}(
 ): Promise<{
   body: ${titlePath}['response']
   status: number
-} | {
-  error: string
-  status: number
+  isError: boolean
 }> {
   try {
     const unknownArgs = args as unknown
     const unknownArgsObj = unknownArgs
       ? unknownArgs as Record<string, unknown>
       : {}
-    const queryString = stringifyQuery(unknownArgsObj.query as Record<string, unknown>)
+    const queryString = stringifyQuery(
+      unknownArgsObj.query as Record<string, unknown>
+    )
     const bodyObj = unknownArgsObj.body
       ? {
           body: JSON.stringify(unknownArgsObj.body),
@@ -56,15 +56,13 @@ export async function ${titlePath}(
       ...bodyObj,
     })
     const contentType = response.headers.get('content-type')
-    const content = contentType === 'application/json'
+    const body = contentType === 'application/json'
       ? await response.json()
       : await response.text()
-    return response.status === 200
-      ? { body: content, status: response.status }
-      : { error: content, status: response.status }
+    return { body, status: response.status, isError: response.status !== 200 }
   } catch (err) {
     const error = err as Error
-    return { error: error.message, status: 500 }
+    return { body: error.message, status: 500, isError: true }
   }
 }
 `
@@ -78,7 +76,7 @@ export const options = zod.object({
   outdir: zod
     .string()
     .default('node_modules/@somnolence/client')
-    .describe('Output directory for generated, type-safe client'),
+    .describe('Output directory for the generated, type-safe client'),
 })
 
 type Props = {
