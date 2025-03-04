@@ -67,7 +67,7 @@ curl http://localhost:3000/hello\?name\=comma,delimited,values,make,an,array
 #### Generate the type-safe client:
 ```bash
 # path/to/your/client
-$ somnolence-ts
+$ somnolence-ts --endpoint http://localhost:3000
 # 💤 Generated Somnolence Client at node_modules/@somnolence/client
 ```
 
