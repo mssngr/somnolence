@@ -1,20 +1,18 @@
-# 💤 Somnolence Bun — The typed REST API framework of your dreams
+# 💤 Somnolence Node — The typed REST API framework of your dreams
 
 Somnolence is a simple framework for providing strongly typed inputs and outputs to your REST API. The best part is that users of your API don't need access to your source code to generate a type safe client. They can just use Somnolence CLI to generate one, automatically!
-
-(Why Bun? The HTTP internals are 2.5x faster than Node!)
 
 Sometimes it's better to show than tell:
 
 ## Install
 ```bash
-$ bun add @somnolence/bun
+$ npm install @somnolence/node
 ```
 
 ## Usage
 ### Create the server:
 ```typescript
-import { createRoute, createSomnolenceServer, t } from '@somnolence/bun'
+import { createRoute, createSomnolenceServer, t } from '@somnolence/node'
 
 const somnolence = createSomnolenceServer({
   routes: {
@@ -38,7 +36,7 @@ _Incorrectly putting the "body" property throws up an error:_<br />
 
 ### Start the server using whatever start script you want:
 ```bash
-bun start
+npm run start
 ```
 
 ### Use the server and get out of the box schema validation:
@@ -122,7 +120,7 @@ curl http://localhost:3000/__schema
 ### Auto-generate a type-safe client:
 ```bash
 # path/to/your/client
-$ bun add -g @somnolence/cli
+$ npm install -g @somnolence/cli
 $ somnolence-ts --endpoint http://localhost:3000
 # 💤 Generated Somnolence Client at node_modules/@somnolence/client
 ```
