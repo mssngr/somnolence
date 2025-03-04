@@ -101,3 +101,9 @@ _The client automatically knows the response is a string_<br />
 
 ## Others
 Let me know what languages you'd like to see Somnolence implemented in. I'll likely be willing to take a crack at it!
+
+## Inspired By
+- [ElysiaJS](https://elysiajs.com)
+- [tRPC](https://trpc.io)
+- [Apollo](https://www.apollographql.com)
+- [GraphQL](https://graphql.org)
