@@ -35,10 +35,10 @@ somnolence
 ```
 
 ### The client infers the inputs and outputs of each route:
-**The client automatically knows what inputs are required**
+**The client automatically knows what inputs are required**<br />
 ![The client automatically knows what inputs are required](../../.images/inference3.png)
 
-**The client automatically knows the response is a string**
+**The client automatically knows the response is a string**<br />
 ![The client automatically knows the response is a string](../../.images/inference4.png)
 
 ## CLI Options

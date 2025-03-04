@@ -44,10 +44,10 @@ somnolence.start()
 ```
 
 #### TypeScript automatically infers your handlers parameters!
-**The "name" property in the handler automatically shows that it's a string:**
+**The "name" property in the handler automatically shows that it's a string:**<br />
 ![The "name" property in the handler automatically shows that it's a string](.images/inference1.png)
 
-**Incorrectly putting the "body" property throws up an error:**
+**Incorrectly putting the "body" property throws up an error:**<br />
 ![Incorrectly putting the "body" property throws up an error](.images/inference2.png)
 
 #### Start the server using whatever start script you want (e.g. `npm run start`)
@@ -81,10 +81,10 @@ somnolence
 ```
 
 #### The client infers the inputs and outputs of each route:
-**The client automatically knows what inputs are required**
+**The client automatically knows what inputs are required**<br />
 ![The client automatically knows what inputs are required](.images/inference3.png)
 
-**The client automatically knows the response is a string**
+**The client automatically knows the response is a string**<br />
 ![The client automatically knows the response is a string](.images/inference4.png)
 
 ## Go
