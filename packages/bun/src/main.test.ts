@@ -6,7 +6,7 @@ describe('createSomonlenceServer', () => {
     const server = createSomnolenceServer({
       port: 3000,
       routes: {
-        '/hello': {
+        hello: {
           GET: createRoute({
             query: t.Object({
               name: t.String(),
@@ -17,7 +17,7 @@ describe('createSomonlenceServer', () => {
           ':name': {
             GET: createRoute({
               response: t.String(),
-              handler: ({ params }) => `Hello, ${params?.name}!`,
+              handler: async ({ params }) => `Hello, ${params?.name}!`,
             }),
           },
         },

@@ -66,7 +66,11 @@ export async function handleRequest<FR extends T.FlattenedRoutes>(
   }
 
   // Get the response
-  const response = route.handler({ params, query, body })
+  const unresolvedResponse = route.handler({ params, query, body })
+  const response =
+    unresolvedResponse instanceof Promise
+      ? await unresolvedResponse
+      : unresolvedResponse
 
   // If the route has an onFinish function, run it
   route.onFinish?.({ req, params, query, body, response })

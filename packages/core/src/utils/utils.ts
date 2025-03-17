@@ -78,7 +78,7 @@ export async function getRouteParamsQueryAndBody({
   route: T.Route
   params?: Record<string, string>
   body?: unknown
-  query?: queryString.ParsedQuery<string | number | boolean>
+  query: queryString.ParsedQuery<string | number | boolean>
 }> {
   const method = req.method as T.Method
   const pathAndMethod = `${url.pathname}/${method}`
@@ -95,7 +95,7 @@ export async function getRouteParamsQueryAndBody({
         parseNumbers: true,
         arrayFormat: 'comma',
       })
-    : undefined
+    : {}
   const route = flattenedRoutes[routePath]
 
   // If bun is used, parse the body as JSON
