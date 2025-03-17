@@ -83,12 +83,8 @@ export async function getRouteParamsQueryAndBody({
   const method = req.method as T.Method
   const pathAndMethod = `${url.pathname}/${method}`
   const routeMatches = routesRegExp.exec(pathAndMethod)?.groups
-  const routePath = Object.entries(routeMatches || {}).find(
-    ([_, val]) => !!val,
-  )?.[0]
-  if (!routePath) {
-    throw new Error('Route not found')
-  }
+  const routePath =
+    Object.entries(routeMatches || {}).find(([_, val]) => !!val)?.[0] || ''
   const paramsRegExp = new RegExp(
     routePath.replace(/___/g, '/').replace(/_COLON_([^/]+)/g, '(?<$1>[^/]+)'),
   )

@@ -1,6 +1,6 @@
 {
   "name": "@somnolence/node",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "author": "Gabriel Konkle",
   "license": "MIT",
   "description": "The type-safe REST API Framework of your dreams.",
@@ -44,6 +44,6 @@
     "dts-bundle-generator": "^9.5.1"
   },
   "dependencies": {
-    "@somnolence/core": "^0.0.23"
+    "@somnolence/core": "^0.0.24"
   }
 }
