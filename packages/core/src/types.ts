@@ -6,21 +6,25 @@ export type Route = {
   body?: TSchema
   response: TSchema
   handler: (_: {
+    params?: Record<string, string>
     query: Static<TSchema>
     body: Static<TSchema>
   }) => Static<TSchema> | Promise<Static<TSchema>>
   authorizer?: (_: {
     req: Request | IncomingMessage
+    params?: Record<string, string>
     query: Static<TSchema>
     body: Static<TSchema>
   }) => boolean | Promise<boolean>
   onStart?: (_: {
     req: Request | IncomingMessage
+    params?: Record<string, string>
     query: Static<TSchema>
     body: Static<TSchema>
   }) => void
   onFinish?: (_: {
     req: Request | IncomingMessage
+    params?: Record<string, string>
     query: Static<TSchema>
     body: Static<TSchema>
     response: Static<TSchema>
@@ -35,21 +39,26 @@ export type UserDefinedRoute<
   query?: Q
   body?: B
   response: R
-  handler: (_: { query: Static<Q>; body: Static<B> }) =>
-    | Static<R>
-    | Promise<Static<R>>
+  handler: (_: {
+    params?: Record<string, string>
+    query: Static<Q>
+    body: Static<B>
+  }) => Static<R> | Promise<Static<R>>
   authorizer?: (_: {
     req: Request | IncomingMessage
+    params?: Record<string, string>
     query: Static<Q>
     body: Static<B>
   }) => boolean | Promise<boolean>
   onStart?: (_: {
     req: Request | IncomingMessage
+    params?: Record<string, string>
     query: Static<Q>
     body: Static<B>
   }) => void
   onFinish?: (_: {
     req: Request | IncomingMessage
+    params?: Record<string, string>
     query: Static<Q>
     body: Static<B>
     response: Static<R>
@@ -67,6 +76,9 @@ export type Routes =
     }
   | RouteObj
 
-export type FlattenedRoutes = Record<string, RouteObj>
+export type FlattenedRoutes = Record<string, Route>
 
-export type Schema = Record<string, Partial<Record<Method, TSchema>>>
+export type Schema = Record<
+  string,
+  { query?: TSchema; body?: TSchema; response: TSchema }
+>

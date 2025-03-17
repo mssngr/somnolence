@@ -4,24 +4,27 @@ import {
   type Route,
   type Routes,
   type UserDefinedRoute,
-  flattenRoutes,
   generateSchema,
   handleRequest,
+  organizeRoutes,
 } from '@somnolence/core'
 
 type RouteBun = Omit<Route, 'authorizer' | 'onStart' | 'onFinish'> & {
   authorizer?: (_: {
     req: Request
+    params?: Record<string, string>
     query: Static<TSchema>
     body: Static<TSchema>
   }) => boolean
   onStart?: (_: {
     req: Request
+    params?: Record<string, string>
     query: Static<TSchema>
     body: Static<TSchema>
   }) => void
   onFinish?: (_: {
     req: Request
+    params?: Record<string, string>
     query: Static<TSchema>
     body: Static<TSchema>
     response: Static<TSchema>
@@ -35,16 +38,19 @@ type UserDefinedRouteBun<
 > = Omit<UserDefinedRoute<Q, B, R>, 'authorizer' | 'onStart' | 'onFinish'> & {
   authorizer?: (_: {
     req: Request
+    params?: Record<string, string>
     query: Static<Q>
     body: Static<B>
   }) => boolean
   onStart?: (_: {
     req: Request
+    params?: Record<string, string>
     query: Static<Q>
     body: Static<B>
   }) => void
   onFinish?: (_: {
     req: Request
+    params?: Record<string, string>
     query: Static<Q>
     body: Static<B>
     response: Static<R>
@@ -66,7 +72,7 @@ export function createSomnolenceServer({
   port?: number
   routes: RoutesBun
 }) {
-  const flattenedRoutes = flattenRoutes(routes as Routes)
+  const { routesRegExp, flattenedRoutes } = organizeRoutes(routes as Routes)
   const schema = generateSchema(flattenedRoutes)
   return {
     start() {
@@ -75,8 +81,9 @@ export function createSomnolenceServer({
         port,
         async fetch(req) {
           return handleRequest(req, {
-            flattenedRoutes,
             schema,
+            routesRegExp,
+            flattenedRoutes,
             handleResponse(response) {
               if (typeof response === 'object' && response !== null) {
                 return Response.json(response)
@@ -92,6 +99,10 @@ export function createSomnolenceServer({
       })
     },
   }
+}
+
+export function createRouter<R extends RoutesBun>(routes: R): R {
+  return routes
 }
 
 export function createRoute<

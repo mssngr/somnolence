@@ -5,9 +5,9 @@ import {
   type Route,
   type Routes,
   type UserDefinedRoute,
-  flattenRoutes,
   generateSchema,
   handleRequest,
+  organizeRoutes,
 } from '@somnolence/core'
 
 type RouteNode = Omit<Route, 'authorizer' | 'onStart' | 'onFinish'> & {
@@ -67,12 +67,13 @@ export function createSomnolenceServer({
   port?: number
   routes: RoutesNode
 }) {
-  const flattenedRoutes = flattenRoutes(routes as Routes)
+  const { routesRegExp, flattenedRoutes } = organizeRoutes(routes as Routes)
   const schema = generateSchema(flattenedRoutes)
   const server = http.createServer((req, res) => {
     handleRequest(req, {
-      flattenedRoutes,
       schema,
+      routesRegExp,
+      flattenedRoutes,
       handleResponse(response) {
         if (typeof response === 'object' && response !== null) {
           res.writeHead(200, { 'Content-Type': 'application/json' })
@@ -98,6 +99,10 @@ export function createSomnolenceServer({
       })
     },
   }
+}
+
+export function createRouter<R extends RoutesNode>(routes: R): R {
+  return routes
 }
 
 export function createRoute<

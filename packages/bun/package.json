@@ -1,6 +1,6 @@
 {
   "name": "@somnolence/bun",
-  "version": "0.1.7",
+  "version": "0.1.9",
   "author": "Gabriel Konkle",
   "license": "MIT",
   "description": "The type-safe REST API Framework of your dreams.",
@@ -39,7 +39,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@somnolence/core": "^0.0.19"
+    "@somnolence/core": "^0.0.23"
   },
   "devDependencies": {
     "@types/bun": "latest"
